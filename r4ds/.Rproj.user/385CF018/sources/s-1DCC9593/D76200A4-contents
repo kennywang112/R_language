@@ -1,0 +1,4 @@
+library(tidyverse)
+library(tidyr)
+library(readr)
+cha<-read_csv("datafinal.csv",col_names = FALSE)

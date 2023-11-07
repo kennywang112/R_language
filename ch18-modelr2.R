@@ -1,0 +1,53 @@
+#公式與模型系列
+#y~x被轉譯為y=a_1+a_2*x
+#model_matrix接收資料匡和公式->回傳模型方程式的的一個tibble
+df<-tribble(
+  ~y,~x1,~x2,
+  4,2,5,
+  5,1,6
+)
+model_matrix(df,y~x1-1)
+model_matrix(df,y~x1+x2)
+#類別變數!
+df<-tribble(
+  ~sex,~response,
+  'male',1,
+  'female',2,
+  'male',1
+)
+model_matrix(df,response~sex)
+ggplot(sim2)+geom_point(aes(x,y))
+mod2<-lm(y~x,data=sim2)
+grid<-sim2%>%data_grid(x)%>%add_predictions(mod2)
+ggplot(sim2,aes(x))+geom_point(aes(y=y))+geom_point(data=grid,aes(y=pred),color='red',size=4)
+#無法對沒有觀察到的levels做出預測
+tibble(x='e')%>%add_predictions(mod2)
+#互動(連續變數與類別變數)!
+ggplot(sim3,aes(x1,y))+geom_point(aes(color=x2))#視覺化一個連續變數與一個類別變數
+mod1<-lm(y~x1+x2,data=sim3)#獨立於其他效應估計每個效應
+mod2<-lm(y~x1*x2,data=sim3)#你和所謂的互動->轉譯y~x1*x2==y=a_0+a_1*a1+a_2*a2+a_12*a1*a2
+#視覺化需要兩個步驟，(data_grid)和(gather_predictions())
+grid<-sim3%>%data_grid(x1,x2)%>%gather_predictions(mod1,mod2)
+grid
+ggplot(sim3,aes(x1,y,color=x2))+geom_point()+
+  geom_line(grid,mapping=aes(y=pred))+facet_wrap(~model)
+#使用殘差來觀察哪個模型好
+sim3<-sim3%>%gather_residuals(mod1,mod2)
+ggplot(sim3,aes(x1,resid,color=x2))+geom_point()+facet_grid(model~x2)
+#互動(兩個連續變數)!
+mod1<-lm(y~x1+x2,data=sim4)
+mod2<-lm(y~x1*x2,data=sim4)
+grid<-sim4%>%data_grid(x1=seq_range(x1,5),x2=seq_range(x2,5))%>%gather_predictions(mod1,mod2)
+grid
+#實用技巧seq_range
+seq_range(c(0.0123,0.923423),n=5)
+seq_range(c(0.0123,0.923423),n=5,pretty = TRUE)
+x1<-rcauchy(100)
+seq_range(x1,n=5)
+seq_range(x1,n=5,trim=0.1)#修剪10%的尾端值
+seq_range(x1,n=5,expand = 0.1)#trim的反面
+#視覺化，表面
+ggplot(grid,aes(x1,x2))+geom_tile(aes(fill=pred))+facet_wrap(~model)
+#雙眼看見的不一定正確，顯示多個薄片
+ggplot(grid,aes(x1,pred,color=x2,group=x2))+geom_line()+facet_wrap(~model)
+ggplot(grid,aes(x2,pred,color=x1,group=x1))+geom_line()+facet_wrap(~model)

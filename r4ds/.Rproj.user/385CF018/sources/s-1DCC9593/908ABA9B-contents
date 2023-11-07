@@ -1,0 +1,20 @@
+library(tidyverse)
+library(stringr)
+x<-c("\"","\\")
+writeLines(x)
+str_c('x','y')
+str_c('x','y',sep=',')
+x<-c('abc',NA)
+str_c('|-',x,'-|')
+str_c('|-',str_replace_na(x),'-|')
+str_c('p',c('a','b','c'),'p')
+name<-'kenny'
+day<-'mor'
+birth<-TRUE
+str_c('good ',day,' ',name,if(birth)' and happy birthday')
+x<-c('cacb','bababa')
+str_sub(x,1,3)#字串太短不會失敗
+str_to_upper(c('i','i'),locale='tr')
+str_sort(x,locale='en')
+str_view(x,'ba')
+str_view(x,'.a.')
